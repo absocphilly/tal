@@ -1,0 +1,11 @@
+{{#if breadcrumbs}}
+<div class="breadcrumb-container">
+  <div class="container">
+    <ol class="breadcrumb">
+      {{#each breadcrumbs}}
+        <li class="breadcrumb-item{{#if @last}} active{{/if}}">{{#if @first}}<i class="fa fa-home pr-2"></i>{{/if}}<a class="link-dark" href="{{href}}">{{label}}</a></li>
+      {{/each}}
+    </ol>
+  </div>
+</div>
+{{/if}}

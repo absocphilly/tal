@@ -1,0 +1,10 @@
+{
+	"sharestreamChristian" : {
+		"emails" : [
+			{
+				"preprocessor" : "standard",
+				"view" : "foo"
+			}
+		]
+	}
+}

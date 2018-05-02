@@ -1,0 +1,17 @@
+{
+	"mainMenu" : {
+		"label" : "Main Menu",
+		"children" : [
+			{ "label": "Home", "key": "home", "href": "/", "submenu" : {
+				"label" : "Key Pages",
+				"children" : [
+					{ "label": "Foo", "key": "foo", "href": "/", "iconClass" : "fa-home" },
+					{ "label": "Bar", "key": "bar", "href": "/", "iconClass" : "fa-suitcase" }
+				]
+			} },
+			{ "label": "Blog", "key": "blog", "href": "/blog", "submenu" : [] },
+			{ "label": "Contact", "key": "contact", "href": "/contact", "submenu" : [] },
+			{ "label": "Do Something", "key": "action", "href": "/action/sharestream", "submenu" : [] }
+		]
+	}
+}

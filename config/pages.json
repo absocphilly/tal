@@ -1,0 +1,26 @@
+{
+	"root" : {
+		"" : {
+			"view"   : "index",
+			"locals" : {
+				"pageTitleParts" : ["The", "Activist", "Life"]
+			}
+		}
+	},
+	"action" : {
+		"sharestream" : {
+			"view"         : "action-sharestream",
+			"callToAction" : "getStarted",
+			"locals" : {
+				"pageTitle" : "The Great Postal Campaign"
+			}
+		},
+		"sharestream:post" : {
+			"view"         : "action-sharestream-post",
+			"callToAction" : "likeForGear",
+			"locals" : {
+				"pageTitle" : "Let There Be Light"
+			}
+		}
+	}
+}

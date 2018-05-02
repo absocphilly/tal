@@ -1,0 +1,19 @@
+{
+	"error" : {
+		"containerClass" : "bg-danger",
+		"title"          : "Error"
+	},
+	"warning" : {
+		"containerClass" : "dark-bg",
+		"title"          : "Warning"
+	},
+	"info" : {
+		"containerClass" : "default-bg",
+		"title"          : "Info"
+	},
+	"success" : {
+		"containerClass" : "default-bg",
+		"title"          : "Success"
+	}
+	
+}

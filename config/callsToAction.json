@@ -1,0 +1,34 @@
+{
+	"default" : "sharestream",
+	"sharestream" : {
+		"type"        : "button",
+		"normalText"  : "A few minutes can save a life",
+		"hoverText"   : "One easy, free way to impact the culture",
+		"buttonText"  : "Learn How",
+		"buttonIcon"  : "chevron-right",
+		"href"        : "/action/sharestream"
+	},
+	"getStarted" : {
+		"type"        : "userFormEmail",
+		"handler"     : "userFormEmailHandler",
+		"headingText" : "The Abolitionist Life",
+		"buttonText"  : "Activate",
+		"buttonIcon"  : "power-off",
+		"href"        : "/action/sharestream",
+		"campaign"    : "sharestreamChristian"
+	},
+	"likeForGear" : {
+		"type"        : "like",
+		"socialType"  : "facebook",
+		"headingText" : "Like Our Page",
+		"footerText"  : "Get Free Gear"
+	},
+	"audiobook" : {
+		"type"       : "button",
+		"normalText" : "Who Are These Abolitionists?",
+		"hoverText"  : "A Biblical Defense of Social Justice",
+		"buttonText" : "Free Audiobook",
+		"buttonIcon" : "download",
+		"href"       : "/action/audiobook"
+	}
+}
