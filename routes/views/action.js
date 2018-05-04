@@ -37,10 +37,22 @@ exports = module.exports = function handleAction(req, res) {
 
 			// Handle Post
 			if (mainCta && mainCta.handler && (handler = d.handlers[mainCta.handler])) {
-				await d.Promise.resolve(handler({
-					req : req,
-					res : res
-				}));
+
+				// TODO: Remove these, save for the last -- test data
+				await Promise.all([
+					d.Promise.resolve(handler({
+						req : req,
+						res : res
+					})),
+					d.Promise.resolve(handler({
+						req : req,
+						res : res
+					})),
+					d.Promise.resolve(handler({
+						req : req,
+						res : res
+					}))
+				]);
 			}
 			next();
 		})().catch(res.createErrorHandler(next));

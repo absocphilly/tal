@@ -48,7 +48,7 @@ let createErrorHandler = function(next) {
 	let req = res.req;
 	let d   = res.d;
 	return e => {
-		if (e instanceof d.UserError) {
+		if (e instanceof d.errors.UserError) {
 			req.flashMessage('error', e.message);
 			next();
 		}

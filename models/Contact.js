@@ -13,12 +13,17 @@ module.exports = function* Contact(d) {
 		plural   : 'Contacts',
 		prefix   : 'C',
 		fields   : {
-			textid           : { default: calculateTextId },
-			name             : { type: Types.Name, required: true, index: true },
-			email            : { type: Types.Email, unique: true, index: true },
-			verifiedDatetime : { type: Types.Datetime }
+			textid                    : { default: calculateTextId },
+			name                      : { type: Types.Name, required: true, index: true },
+			email                     : { type: Types.Email, unique: true, index: true },
+			emailValidatedDatetime    : { type: Types.Datetime },
+			emailVerifiedDatetime     : { type: Types.Datetime },
+			emailUnsubscribedDatetime : { type: Types.Datetime }
 		}
 	};
+
+	// Add Non-Supported Fields
+	Contact.schema.add({ emailParts: d.mongoose.Schema.Types.Mixed });
 
 	// Add Custom Schema Methods
 	Contact.schema.query.byEmail = function byEmail(email) {

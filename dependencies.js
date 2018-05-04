@@ -3,8 +3,10 @@ d.Promise  = require('bluebird');
 d.short    = require('short-uuid');
 d.keystone = require('keystone');
 d._        = require('lodash');
+d.moment   = require('moment');
 d.express  = d.keystone.express;
 d.app      = d.express.application;
+d.mongoose = d.keystone.mongoose;
 
 d.config                = {};
 d.config.callsToAction  = require('./config/callsToAction.json');
@@ -25,24 +27,26 @@ d.handlebars = (d.hbs = require('express-handlebars')).create({
 d.Handlebars = d.handlebars.handlebars;
 
 let errors = {
+	Error           : Error,
 	TypeError       : TypeError,
-	OptionsError    : Error,
+	OptionsError    : Error, // TODO: Make these real classes
 	ValidationError : Error
 }
 
 // Load Asynchronous Dependencies
 d._ready = (async function loadAsyncDependencies() {
 	// Load Errors
-	d.Error     = Error;
-	d.UserError = await require('./lib/errors/UserError')(d);
+	d.errors             = errors;
+	d.errors.SystemError = await require('./lib/errors/SystemError')(d);
+	d.errors.UserError   = await require('./lib/errors/UserError')(d);
 
 	// Load Utils
 	d.util               = await require('./lib/util/util')(d);
-	d.errors             = errors;
 	d.util.ids           = await require('./lib/util/ids')(d);
 	d.util.stats         = await require('./lib/util/stats')(d);
 	d.util.generateModel = await require('./lib/util/generateModel')(d);
 	d.util.nav           = await require('./lib/util/nav')(d);
+	d.util.createHandler = await require('./lib/util/createHandler')(d);
 
 	// Compile Config
 	d.util.nav.compileMenu(d.config.nav.mainMenu);
@@ -54,8 +58,9 @@ d._ready = (async function loadAsyncDependencies() {
 	await d.routes.keystone(d);
 
 	// Load Handlers
+	let createHandler = d.util.createHandler;
 	d.handlers = await d.Promise.props({
-		userFormEmailHandler : require('./lib/handlers/userFormEmailHandler')(d)
+		userFormEmailHandler : createHandler({ handler : require('./routes/handlers/userFormEmailHandler')(d) })
 	});
 
 	// Load Models
