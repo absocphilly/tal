@@ -14,20 +14,20 @@ module.exports = function* Enquiry(d) {
 		plural   : 'Enquiries',
 		prefix   : 'ENQ',
 		nocreate: true,
-		noedit: true
+		noedit: true,
+		fields   : {
+			textid : { default: function() { return this.name.first + ' ' + this.name.last; } },
+			name   : { type: Types.Name, required: true, initial : true },
+			email  : { type: Types.Email, required: true, initial : true },
+			phone  : { type: String },
+			enquiryType : { type: Types.Select, options: [
+				{ value : 'message',  label : 'Just leaving a message' },
+				{ value : 'question', label : 'I\'ve got a question' },
+				{ value : 'other',    label : 'Something else...' },
+			] },
+			message : { type: Types.Markdown, required: true, initial : true }
+		}
 	};
-
-	Enquiry.add({
-		name: { type: Types.Name, required: true, initial : true },
-		email: { type: Types.Email, required: true, initial : true },
-		phone: { type: String },
-		enquiryType: { type: Types.Select, options: [
-			{ value: 'message', label: 'Just leaving a message' },
-			{ value: 'question', label: 'I\'ve got a question' },
-			{ value: 'other', label: 'Something else...' },
-		] },
-		message: { type: Types.Markdown, required: true, initial : true }
-	});
 
 	Enquiry.schema.pre('save', function (next) {
 		this.wasNew = this.isNew;

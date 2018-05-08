@@ -1,0 +1,13 @@
+{
+	"defaults" : {
+		"start"      : false,
+		"timeZone"   : "America/New_York",
+		"runOptions" : {}
+	},
+	"jobs" : [
+		{
+			"cronTime"   :"* * * * * *",
+			"onTick"     : "manageCampaigns"
+		}
+	]
+}

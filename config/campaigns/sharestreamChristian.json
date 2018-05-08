@@ -1,0 +1,54 @@
+{
+	"initialNodeCalculator" : "ifUser",
+	"initialNodeOptions"    : { "isUser" : "email01", "isNotUser" : "optIn" },
+	"nodes" : {
+		"optIn" : {
+			"actions" : [
+				{
+					"type" : "transactionEmail",
+					"view" : "sharestreamChristianOptIn",
+					"viewOptionsCalculator" : "calculateSharestreamChristianOptions"
+				}
+			],
+			"edges"  : [
+				{
+					"on"        : "expire",
+					"onOptions" : { "duration" : { "days" : 30 } },
+					"move"      : "cancelled"
+				}
+			]
+		},
+		"email01" : {
+			"actions" : [
+				{
+					"type" : "email",
+					"view" : "sharestreamChristianEmail01",
+					"viewOptionsCalculator" : "calculateSharestreamChristianOptions"
+				}
+			],
+			"edges"  : [
+				{
+					"on"        : "expire",
+					"onOptions" : { "duration" : { "days" : 1 } },
+					"move"      : "email-02"
+				}
+			]
+		},
+		"email02" : {
+			"actions" : [
+				{
+					"type" : "email",
+					"view" : "sharestreamChristianEmail02",
+					"viewOptionsCalculator" : "calculateSharestreamChristianOptions"
+				}
+			],
+			"edges"  : [
+				{
+					"on"        : "expire",
+					"onOptions" : { "duration" : { "days" : 1 } },
+					"move"      : "complete"
+				}
+			]
+		}
+	}
+}

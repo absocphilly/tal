@@ -2,6 +2,7 @@ exports = module.exports = function handleAction(req, res) {
 	// Init
 	let d            = req.d;
 	let util         = d.util;
+	let UserError    = d.errors.UserError;
 	let locals       = res.locals;
 	let mainMenu     = locals.mainMenu;
 	let config       = d.config;
@@ -10,6 +11,7 @@ exports = module.exports = function handleAction(req, res) {
 	let viewPage     = config.pages.action[action];
 	let mainCta      = config.callsToAction[viewPage ? viewPage.callToAction : undefined];
 	let view         = new d.keystone.View(req, res);
+	let c            = config.constants;
 
 	// Validate Action
 	if (!viewPage) {
@@ -36,26 +38,20 @@ exports = module.exports = function handleAction(req, res) {
 			let handler;
 
 			// Handle Post
-			if (mainCta && mainCta.handler && (handler = d.handlers[mainCta.handler])) {
-
-				// TODO: Remove these, save for the last -- test data
-				await Promise.all([
-					d.Promise.resolve(handler({
-						req : req,
-						res : res
-					})),
-					d.Promise.resolve(handler({
-						req : req,
-						res : res
-					})),
-					d.Promise.resolve(handler({
-						req : req,
-						res : res
-					}))
-				]);
+			if (mainCta && mainCta.handler && (handler = d.routes.handlers[mainCta.handler])) {
+				// Create Contact
+				let contact = await d.Promise.resolve(handler({
+					req : req,
+					res : res
+				}));
 			}
 			next();
-		})().catch(res.createErrorHandler(next));
+		})()
+		.catch(e => {
+			e instanceof UserError && (e.redirect = '/' + c.ROUTE.ACTION + '/' + action);
+			throw e;
+		})
+		.catch(res.createErrorHandler(next));
 	});
 
 	view.render(() => {

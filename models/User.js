@@ -8,13 +8,16 @@ module.exports = function* User(d) {
 		plural   : 'Users',
 		prefix   : 'U',
 		fields   : {
-			name     : { type: Types.Name, required: true, index: true },
-			// textid   : { default: function() { console.log(this); return this.name.first + ' ' + this.name.last; } },
-			email    : { type: Types.Email, unique: true, index: true },
+			textid   : { default: function() { return this.name.first + ' ' + this.name.last; } },
+			name     : { type: Types.Name, required: true, initial : true, index: true },
 			password : { type: Types.Password },
 			isAdmin  : { type: Boolean, label: 'Can access Keystone', index: true },
+			contact  : { type: Types.Relationship, ref : 'Contact' }
 		}
 	};
+
+	// Add Related Lists
+	User.relationship({ path : 'campaigns', ref: 'Campaign', refPath: 'user' });
 
 	// Provide access to Keystone
 	User.schema.virtual('canAccessKeystone').get(function () {

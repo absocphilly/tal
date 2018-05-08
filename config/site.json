@@ -5,5 +5,7 @@
 	"metaDescription" : "The Activist Life — Answering the question, \"What does Christianity look like in a culture that kills its children?\"",
 	"address"         : ["786 West Bristol Road", "Warminster, PA 18974"],
 	"phone"           : "215-672-1670",
-	"email"           : "absocphilly@gmail.com"
+	"email"           : "absocphilly@gmail.com",
+	"production"      : false,
+	"logName"         : "activate"
 }
