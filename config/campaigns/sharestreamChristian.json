@@ -1,19 +1,22 @@
 {
 	"initialNodeCalculator" : "ifUser",
-	"initialNodeOptions"    : { "isUser" : "email01", "isNotUser" : "optIn" },
+	"initialNodeOptions"    : { "true" : "email01", "false" : "optIn" },
 	"nodes" : {
 		"optIn" : {
 			"actions" : [
 				{
 					"type" : "transactionEmail",
 					"view" : "sharestreamChristianOptIn",
-					"viewOptionsCalculator" : "calculateSharestreamChristianOptions"
+					"viewOptions" : {
+						"stats"  : "getPersonalStats",
+						"button" : "getOptInButton"
+					}
 				}
 			],
 			"edges"  : [
 				{
-					"on"        : "expire",
-					"onOptions" : { "duration" : { "days" : 30 } },
+					"if"        : "isExpired",
+					"ifOptions" : { "duration" : { "days" : 30 } },
 					"move"      : "cancelled"
 				}
 			]
@@ -23,13 +26,16 @@
 				{
 					"type" : "email",
 					"view" : "sharestreamChristianEmail01",
-					"viewOptionsCalculator" : "calculateSharestreamChristianOptions"
+					"viewOptions" : {
+						"stats"  : "getPersonalStats",
+						"button" : "getContentButton"
+					}
 				}
 			],
 			"edges"  : [
 				{
-					"on"        : "expire",
-					"onOptions" : { "duration" : { "days" : 1 } },
+					"if"        : "isExpired",
+					"ifOptions" : { "duration" : { "days" : 1 } },
 					"move"      : "email-02"
 				}
 			]
@@ -39,13 +45,16 @@
 				{
 					"type" : "email",
 					"view" : "sharestreamChristianEmail02",
-					"viewOptionsCalculator" : "calculateSharestreamChristianOptions"
+					"viewOptions" : {
+						"stats"  : "getPersonalStats",
+						"button" : "getContentButton"
+					}
 				}
 			],
 			"edges"  : [
 				{
-					"on"        : "expire",
-					"onOptions" : { "duration" : { "days" : 1 } },
+					"if"        : "isExpired",
+					"ifOptions" : { "duration" : { "days" : 1 } },
 					"move"      : "complete"
 				}
 			]

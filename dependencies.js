@@ -45,10 +45,11 @@ let errors = {
 // Load Asynchronous Dependencies
 d._ready = (async function loadAsyncDependencies() {
 	// Load Errors
-	d.errors             = errors;
-	d.errors.ReachError  = await require('./lib/errors/ReachError')(d);
-	d.errors.SystemError = await require('./lib/errors/SystemError')(d);
-	d.errors.UserError   = await require('./lib/errors/UserError')(d);
+	d.errors                  = errors;
+	d.errors.ReachError       = await require('./lib/errors/ReachError')(d);
+	d.errors.SystemError      = await require('./lib/errors/SystemError')(d);
+	d.errors.UserError        = await require('./lib/errors/UserError')(d);
+	d.errors.InvalidUuidError = await require('./lib/errors/InvalidUuidError')(d);
 
 	// Load Loggers
 	d.loggers = await require('./lib/loggers')(d);
@@ -56,13 +57,20 @@ d._ready = (async function loadAsyncDependencies() {
 	// Load Utils
 	d.util               = await require('./lib/util/util')(d);
 	d.util.ids           = await require('./lib/util/ids')(d);
-	d.util.stats         = await require('./lib/util/stats')(d);
-	d.util.generateModel = await require('./lib/util/generateModel')(d);
-	d.util.nav           = await require('./lib/util/nav')(d);
 	d.util.createHandler = await require('./lib/util/createHandler')(d);
+	d.util.stats         = await require('./lib/util/stats')(d);
+	d.util.nav           = await require('./lib/util/nav')(d);
 	d.util.createCronJob = await require('./lib/util/createCronJob')(d);
 	let createHandler = d.util.createHandler;
 	let createCronJob = d.util.createCronJob;
+
+	// Load Data Libs
+	d.data = {};
+	d.data.generateModel    = await require('./lib/data/generateModel')(d);
+	d.data.BulkDataAccessor = await require('./lib/data/BulkDataAccessor')(d);
+	d.data.DataPool         = await require('./lib/data/DataPool')(d);
+	d.data.ObjectId         = await require('./lib/data/ObjectId')(d);
+	// d.data.OldObjectId      = d.mongoose.Schema.ObjectId;
 
 	// Compile Config
 	d.util.nav.compileMenu(d.config.nav.mainMenu);
@@ -81,22 +89,25 @@ d._ready = (async function loadAsyncDependencies() {
 	// Load Models
 	d.lists          = {};
 	d.models         = {};
+	d.create         = {};
 	d.tokens         = {};
 	d.tokensByPrefix = {};
 	let tokens = await d.Promise.props({
-		User          : d.util.generateModel(require('./models/User')),
-		Contact       : d.util.generateModel(require('./models/Contact')),
-		Campaign      : d.util.generateModel(require('./models/Campaign')),
-		Communication : d.util.generateModel(require('./models/Communication')),
-		Enquiry       : d.util.generateModel(require('./models/Enquiry'))
+		Attribution   : d.data.generateModel(require('./models/Attribution')),
+		Contact       : d.data.generateModel(require('./models/Contact')),
+		Campaign      : d.data.generateModel(require('./models/Campaign')),
+		Communication : d.data.generateModel(require('./models/Communication')),
+		Enquiry       : d.data.generateModel(require('./models/Enquiry')),
+		User          : d.data.generateModel(require('./models/User'))
 	});
 	for (let key in tokens) {
 		if (!(tokens.hasOwnProperty(key))) continue;
 		let token = tokens[key];
-		Object.defineProperty(d.lists,          key,          { value : token.List,  writable : false, enumerable : true });
-		Object.defineProperty(d.models,         key,          { value : token.Model, writable : false, enumerable : true });
-		Object.defineProperty(d.tokens,         key,          { value : token,       writable : false, enumerable : true });
-		Object.defineProperty(d.tokensByPrefix, token.prefix, { value : token,       writable : false, enumerable : true });
+		Object.defineProperty(d.lists,          key,          { value : token.List,   writable : false, enumerable : true });
+		Object.defineProperty(d.models,         key,          { value : token.Model,  writable : false, enumerable : true });
+		Object.defineProperty(d.create,         key,          { value : token.create, writable : false, enumerable : true });
+		Object.defineProperty(d.tokens,         key,          { value : token,        writable : false, enumerable : true });
+		Object.defineProperty(d.tokensByPrefix, token.prefix, { value : token,        writable : false, enumerable : true });
 	}
 	Object.freeze(d.lists);
 	Object.freeze(d.models);

@@ -1,29 +1,38 @@
+"use strict";
 module.exports = d => {
-	let exports = {};
+	let exports = {},
+	    Promise = d.Promise;
 
 	/**
 	 * Initializes preliminary dependencies
 	 */
-	exports.initPrelim = (req, res, next) => { // potentially add async if needed
+	exports.initPrelim = (req, res, next) => {
 		// Init
 		let d             = req.d,
-			keystone      = d.keystone;
+			keystone      = d.keystone,
 			config        = d.config,
 			util          = d.util,
 			site          = config.site,
 			callsToAction = config.callsToAction,
+			stats         = util.stats,
+			onComplete, resolveComplete, rejectComplete;
 
 		// Create Loggers
-		req.log = res.log = req.d.loggers.forWeb(req, res);
+		req.log = res.log = d.loggers.forWeb(req, res);
 		req.log.status('start', 'Request initialized.');
 
 		// Attach Event Handlers
-		res.createErrorHandler    = createErrorHandler;
-		res.errorResourceNotFound = errorResourceNotFound;
-		res.errorInternal         = errorInternal;
+		res.createErrorHandler      = createErrorHandler;
+		res.errorResourceNotFound   = errorResourceNotFound;
+		res.errorInternal           = errorInternal;
+		res.onComplete = onComplete = new Promise((res, rej) => { resolveComplete = res; rejectComplete = rej; });
+		res.resolveComplete         = resolveComplete;
+		res.rejectComplete          = rejectComplete;
 
 		// Handle Session
 		req.session.foo = req.session.foo === undefined ? 0 : req.session.foo + 1;
+		req.stats       = stats;
+		req.reqStats    = stats.createStats();
 
 		// Init Lib
 		req.flashTitle         = flashTitle;
@@ -36,15 +45,47 @@ module.exports = d => {
 		res.locals.site           = site;
 		res.locals.pageTitle      = site.name;
 		res.locals.pageTitleParts = undefined;
-		res.locals.siteStats      = util.stats.getSiteStats();
+		res.locals.barStats       = null; // TODO: add user id
 		res.locals.callsToAction  = util.nav.getCallsToAction('default');
 
-		// Init Other
+		// Add Async Cleanup Jobs
 		res.asyncJobs = [];
+		res.asyncJobs.push(onComplete.then(logStats));
 
-		// Finalize
-		next();
+		// Add Async Prerequisites
+		Promise.props({
+			barStats : stats.getBarStats(null)
+		}).then(vals => {
+			res.locals.barStats = vals.barStats;
+			next();
+		});
 	};
+
+	/**
+	 * Logs attribution statistics once a request has completed.
+	 */
+	async function logStats(res) {
+		// Init
+		let req         = res.req;
+		let stats       = req.stats;
+		let reqStats    = req.reqStats;
+		let session     = req.session;
+		let Attribution = req.d.tokens.Attribution;
+		let attr, attrUuid, parentUuid;
+
+		// Get/Create Attribution
+		parentUuid = req.query.attr ? Attribution.prefix + '-' + req.query.attr : undefined;
+		attrUuid   = session.attrUuid; // TODO: manually control session
+
+		// Create Attribution
+		if (!attrUuid && parentUuid) { // fresh product of parent attribution
+			attr = await stats.createAttribution(parentUuid);
+			attrUuid = attr.Uuid;
+		}
+
+		// Attribute
+		return stats.logStats(attrUuid, reqStats);
+	}
 
 	let createErrorHandler = function(next) {
 		let res = this;
@@ -158,13 +199,15 @@ module.exports = d => {
 		let asyncStart = d.moment();
 		let log        = res.log;
 		let logError   = e => log.info(e);
+		let runAsync   = res.asyncJobs.length > 0;
 		resTime        = Math.round(resTime);
 
 		// Log Response Time
-		log.status('stop', 'Request completed, async jobs begun.', { resTime : resTime });
+		log.status('stop', (runAsync ? 'Request completed, async jobs begun.' : 'Request completed.'), { resTime : resTime });
+		res.resolveComplete(res);
 
 		// Protect && Time Async
-		if (res.asyncJobs.length > 0) {
+		if (runAsync) {
 			let protectedJobs = res.asyncJobs.map(job => Promise.resolve(job).catch(logError));
 			Promise.all(protectedJobs).then(() => {
 				let asyncTime = Math.round(d.moment().diff(asyncStart));

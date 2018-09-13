@@ -61,7 +61,7 @@ module.exports = d => {
 		await Contact.insertMany(newContacts);
 
 		// Create Campaigns For New Contacts
-		collection = await collection.handleAll(options => {
+		collection = await collection.handleAll(async options => {
 			// Init
 			let email          = options.req.body.email;
 			let campaignTextId = options.req.body.campaign;
@@ -73,10 +73,8 @@ module.exports = d => {
 			});
 			newCampaigns.push(campaign);
 			campaignsByEmail.set(email, campaign);
+			await Campaign.data.insert(campaign);
 		});
-
-		// Insert New Campaigns
-		await Campaign.insertMany(newCampaigns);
 
 		// Finalize
 		collection = await collection.resolveAll(async options => {
