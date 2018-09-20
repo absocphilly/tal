@@ -56,6 +56,7 @@ d._ready = (async function loadAsyncDependencies() {
 
 	// Load Utils
 	d.util               = await require('./lib/util/util')(d);
+	d.util.createContext = await require('./lib/util/createContext')(d);
 	d.util.ids           = await require('./lib/util/ids')(d);
 	d.util.createHandler = await require('./lib/util/createHandler')(d);
 	d.util.stats         = await require('./lib/util/stats')(d);
@@ -70,7 +71,6 @@ d._ready = (async function loadAsyncDependencies() {
 	d.data.BulkDataAccessor = await require('./lib/data/BulkDataAccessor')(d);
 	d.data.DataPool         = await require('./lib/data/DataPool')(d);
 	d.data.ObjectId         = await require('./lib/data/ObjectId')(d);
-	// d.data.OldObjectId      = d.mongoose.Schema.ObjectId;
 
 	// Compile Config
 	d.util.nav.compileMenu(d.config.nav.mainMenu);

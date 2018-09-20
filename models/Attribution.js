@@ -10,7 +10,7 @@ module.exports = function* Attribution(d) {
 		singular : 'Attribution',
 		plural   : 'Attributions',
 		prefix   : 'ATTR',
-		poolSize : d.data.DataPool.DEFAULT_POOL_SIZE + 1,
+		poolSize : d.data.DataPool.DEFAULT_POOL_SIZE,
 		fields   : {
 			parent : { type : Types.Relationship, ref : 'Attribution', initial : true, index : true },
 			mine   : { type : mongoose.Schema.Types.Mixed, keystone : false },

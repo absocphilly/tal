@@ -8,14 +8,18 @@ module.exports = d => {
 	 */
 	exports.initPrelim = (req, res, next) => {
 		// Init
-		let d             = req.d,
+		let $,
+		    d             = req.d,
 			keystone      = d.keystone,
 			config        = d.config,
 			util          = d.util,
 			site          = config.site,
 			callsToAction = config.callsToAction,
 			stats         = util.stats,
-			onComplete, resolveComplete, rejectComplete;
+			onComplete, resolveComplete, rejectComplete, context;
+
+		// Create Context
+		$ = req.$ = res.$ = new util.createContext({ req, res });
 
 		// Create Loggers
 		req.log = res.log = d.loggers.forWeb(req, res);
@@ -64,27 +68,39 @@ module.exports = d => {
 	/**
 	 * Logs attribution statistics once a request has completed.
 	 */
-	async function logStats(res) {
-		// Init
-		let req         = res.req;
-		let stats       = req.stats;
-		let reqStats    = req.reqStats;
-		let session     = req.session;
-		let Attribution = req.d.tokens.Attribution;
-		let attr, attrUuid, parentUuid;
+	async function logStats($) {
+		try {
+			// Init
+			let req         = $.context.req;
+			let stats       = req.stats;
+			let newStats    = req.reqStats;
+			let session     = req.session;
+			let Attribution = req.d.tokens.Attribution;
+			let attr, attrId, parentId;
 
-		// Get/Create Attribution
-		parentUuid = req.query.attr ? Attribution.prefix + '-' + req.query.attr : undefined;
-		attrUuid   = session.attrUuid; // TODO: manually control session
+			// Get/Create Attribution
+			parentId = Attribution.createId(req.query.attr);
+			attrId   = Attribution.createId(session.attrId);
 
-		// Create Attribution
-		if (!attrUuid && parentUuid) { // fresh product of parent attribution
-			attr = await stats.createAttribution(parentUuid);
-			attrUuid = attr.Uuid;
+			// Create Attribution
+			if (!attrId && parentId) { // fresh product of parent attribution
+				attr           = await stats.createAttribution(parentId);
+				attrId         = attr.id;
+				session.attrId = attrId.toString();
+			}
+
+			// Attribute
+			newStats.articleHits++;
+			return stats.logStats($({ attrId, newStats }));
 		}
-
-		// Attribute
-		return stats.logStats(attrUuid, reqStats);
+		catch(e) {
+			if (e instanceof d.errors.InvalidUuidError) {
+				res.log.info({ subtype : 'invalid-attribution-id' }, 'An invalid attribution id was provided: ' + e.uuid);
+			}
+			else {
+				throw e;
+			}
+		}
 	}
 
 	let createErrorHandler = function(next) {
@@ -194,6 +210,7 @@ module.exports = d => {
 
 	exports.rtime = d.rtime((req, res, resTime) => {
 		// Init
+		let $          = res.$;
 		let d          = res.d;
 		let Promise    = d.Promise;
 		let asyncStart = d.moment();
@@ -204,7 +221,7 @@ module.exports = d => {
 
 		// Log Response Time
 		log.status('stop', (runAsync ? 'Request completed, async jobs begun.' : 'Request completed.'), { resTime : resTime });
-		res.resolveComplete(res);
+		res.resolveComplete($);
 
 		// Protect && Time Async
 		if (runAsync) {
