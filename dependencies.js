@@ -8,8 +8,11 @@ d.moment   = require('moment');
 d.bunyan   = require('bunyan');
 d.CronJob  = require('cron').CronJob;
 d.rtime    = require('response-time');
+d.sessions = require('client-sessions');
+d.esession = require('express-session');
 d.express  = d.keystone.express;
 d.app      = d.express.application;
+console.log(Object.keys(d.keystone.session)); //-------------------
 
 d.config                = {};
 d.config.callsToAction  = require('./config/callsToAction.json');
@@ -20,6 +23,7 @@ d.config.flashTypeNames = Object.keys(d.config.flashTypes);
 d.config.nav            = require('./config/nav.json');
 d.config.pages          = require('./config/pages.json');
 d.config.site           = require('./config/site.json');
+d.config.sessions       = require('./config/sessions.json');
 
 d.config.campaigns = {};
 d.config.campaigns.sharestreamChristian = require('./config/campaigns/sharestreamChristian');
@@ -71,6 +75,7 @@ d._ready = (async function loadAsyncDependencies() {
 	d.data.BulkDataAccessor = await require('./lib/data/BulkDataAccessor')(d);
 	d.data.DataPool         = await require('./lib/data/DataPool')(d);
 	d.data.ObjectId         = await require('./lib/data/ObjectId')(d);
+	d.data.SessionStore     = await require('./lib/data/SessionStore')(d);
 
 	// Compile Config
 	d.util.nav.compileMenu(d.config.nav.mainMenu);

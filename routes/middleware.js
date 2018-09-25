@@ -77,6 +77,7 @@ module.exports = d => {
 			let session     = req.session;
 			let Attribution = req.d.tokens.Attribution;
 			let attr, attrId, parentId;
+			console.log(session); //-------------------
 
 			// Get/Create Attribution
 			parentId = Attribution.createId(req.query.attr);

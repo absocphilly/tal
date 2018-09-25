@@ -21,8 +21,9 @@ module.exports = async d => {
 		'emails': 'templates/emails',
 
 		'auto update': true,
+		// 'headless': true, // disables admin ui
 		'session': true,
-		'session store' : 'mongo',
+		'session store': options => new d.data.SessionStore(options),
 		'auth': true,
 		'user model': 'User',
 		'logger': false,
@@ -30,9 +31,6 @@ module.exports = async d => {
 		'mongo' : 'mongodb://localhost/reach',
 		'mongoose' : d.mongoose
 	});
-
-	// Load Models
-	// keystone.import('models');
 
 	// Setup common locals for your templates. The following are required for the
 	// bundled templates and layouts. Any runtime locals (that should be set uniquely
@@ -44,13 +42,17 @@ module.exports = async d => {
 		editable: keystone.content.editable
 	});
 
-	// Load Routes
+	// Load Route Prerequisites
+	keystone.pre('routes', d.sessions(d.config.sessions.track));
+	keystone.pre('routes', d.sessions(d.config.sessions.auth));
 	keystone.pre('routes', d.routes.middleware.rtime);
 	keystone.pre('routes', function (req, res, next) {
 		req.d = d;
 		res.d = d;
 		next();
 	});
+
+	// Load Routes
 	keystone.set('routes', await d.routes.routes(d));
 
 

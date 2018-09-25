@@ -20,6 +20,7 @@
 module.exports = d => {
 	let keystone     = d.keystone;
 	let express      = d.express;
+	let sessions     = d.sessions;
 	let middleware   = d.routes.middleware;
 	let importRoutes = keystone.importer(__dirname);
 	let c            = d.config.constants;
