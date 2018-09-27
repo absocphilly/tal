@@ -63,6 +63,7 @@ d._ready = (async function loadAsyncDependencies() {
 	d.util.createContext = await require('./lib/util/createContext')(d);
 	d.util.ids           = await require('./lib/util/ids')(d);
 	d.util.createHandler = await require('./lib/util/createHandler')(d);
+	d.util.createModule  = await require('./lib/util/createModule')(d);
 	d.util.stats         = await require('./lib/util/stats')(d);
 	d.util.nav           = await require('./lib/util/nav')(d);
 	d.util.createCronJob = await require('./lib/util/createCronJob')(d);
@@ -72,6 +73,8 @@ d._ready = (async function loadAsyncDependencies() {
 	// Load Data Libs
 	d.data = {};
 	d.data.generateModel    = await require('./lib/data/generateModel')(d);
+	d.data.createDataToken  = await require('./lib/data/createDataToken')(d);
+	d.data.DataInterface    = await require('./lib/data/DataInterface')(d);
 	d.data.BulkDataAccessor = await require('./lib/data/BulkDataAccessor')(d);
 	d.data.DataPool         = await require('./lib/data/DataPool')(d);
 	d.data.ObjectId         = await require('./lib/data/ObjectId')(d);
@@ -118,6 +121,12 @@ d._ready = (async function loadAsyncDependencies() {
 	Object.freeze(d.models);
 	Object.freeze(d.tokens);
 	Object.freeze(d.tokensByPrefix);
+
+	// Load Modules
+	d.modules = await d.Promise.props({
+		Stats : d.util.createModule(require('./modules/Stats'))
+	});
+
 
 	// Load Cron Jobs
 	d.cron = {};
