@@ -1,12 +1,12 @@
 module.exports = async function onStartup(d) {
 	// Handle Development Environment
 	if (!d.config.site.production) {
-		await d.Promise.all(Object.keys(d.models).map(key => {
-			return d.models[key].deleteEverything();
+		await d.Promise.all(Object.keys(d.token).map(key => {
+			return d.token[key]().Model.remove().exec();
 		}));
 	}
 
-	let attr, attrs = [], Attribution = d.tokens.Attribution;
+	let attr, attrs = [], Attribution = d.token.Attribution();
 	attrs.push(Attribution.data.insert(attr = Attribution.create({ textid : 'attr-01' })));
 	attrs.push(Attribution.data.insert(attr = Attribution.create({ textid : 'attr-02', parent : attr.id })));
 	attrs.push(Attribution.data.insert(attr = Attribution.create({ textid : 'attr-03', parent : attr.id })));

@@ -14,6 +14,14 @@ d.express  = d.keystone.express;
 d.app      = d.express.application;
 console.log(Object.keys(d.keystone.session)); //-------------------
 
+// Create Symbols
+d.symbol = {
+	prefix : Symbol('parent'),
+	prefix : Symbol('prefix'),
+	ready  : Symbol('ready')
+};
+
+// Load Configs
 d.config                = {};
 d.config.callsToAction  = require('./config/callsToAction.json');
 d.config.constants      = require('./config/constants.json');
@@ -64,7 +72,6 @@ d._ready = (async function loadAsyncDependencies() {
 	d.util.ids           = await require('./lib/util/ids')(d);
 	d.util.createHandler = await require('./lib/util/createHandler')(d);
 	d.util.createModule  = await require('./lib/util/createModule')(d);
-	d.util.stats         = await require('./lib/util/stats')(d);
 	d.util.nav           = await require('./lib/util/nav')(d);
 	d.util.createCronJob = await require('./lib/util/createCronJob')(d);
 	let createHandler = d.util.createHandler;
@@ -95,11 +102,8 @@ d._ready = (async function loadAsyncDependencies() {
 	await d.routes.keystone(d);
 
 	// Load Models
-	d.lists          = {};
-	d.models         = {};
-	d.create         = {};
-	d.tokens         = {};
-	d.tokensByPrefix = {};
+	d.token = {};
+	let tokenByPrefix = d.token[d.symbol.prefix] = {};
 	let tokens = await d.Promise.props({
 		Attribution   : d.data.generateModel(require('./models/Attribution')),
 		Contact       : d.data.generateModel(require('./models/Contact')),
@@ -111,14 +115,9 @@ d._ready = (async function loadAsyncDependencies() {
 	for (let key in tokens) {
 		if (!(tokens.hasOwnProperty(key))) continue;
 		let token = tokens[key];
-		Object.defineProperty(d.lists,          key,          { value : token.List,   writable : false, enumerable : true });
-		Object.defineProperty(d.models,         key,          { value : token.Model,  writable : false, enumerable : true });
-		Object.defineProperty(d.create,         key,          { value : token.create, writable : false, enumerable : true });
-		Object.defineProperty(d.tokens,         key,          { value : token,        writable : false, enumerable : true });
-		Object.defineProperty(d.tokensByPrefix, token.prefix, { value : token,        writable : false, enumerable : true });
+		Object.defineProperty(d.token,       key,          { value : token, writable : false, enumerable : true });
+		Object.defineProperty(tokenByPrefix, token.prefix, { value : token, writable : false, enumerable : true });
 	}
-	Object.freeze(d.lists);
-	Object.freeze(d.models);
 	Object.freeze(d.tokens);
 	Object.freeze(d.tokensByPrefix);
 

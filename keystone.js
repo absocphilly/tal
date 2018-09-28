@@ -11,8 +11,12 @@ d._ready.then(async function() {
 	// Start Front-End Server
 	d.keystone.start();
 
+	// Start Modules
+	await d.Promise.all(Object.values(d.modules).map(mod => {
+		return mod.control.start();
+	}));
+
 	// Start Service
-	await d.util.stats.start();
 	d.loggers.other.general('Service running');
 	await require('./onStartup')(d);
 
